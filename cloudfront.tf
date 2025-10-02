@@ -1,48 +1,3 @@
-resource "aws_s3_bucket" "b" {
-  bucket = "bucket-frontend"
-
-  tags = {
-    Name = "Bucket S3 Frontend de Proyecto"
-  }
-}
-
-data "aws_iam_policy_document" "origin_bucket_policy" {
-  statement {
-    sid    = "AllowCloudFrontServicePrincipalReadWrite"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.b.arn}/*",
-    ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.s3_distribution.arn]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "b" {
-  bucket = aws_s3_bucket.b.bucket
-  policy = data.aws_iam_policy_document.origin_bucket_policy.json
-}
-
-locals {
-  my_domain    = "clinica.com"
-  s3_origin_id = "frontendS3"
-}
-
-
 resource "aws_cloudfront_origin_access_control" "default" {
   name                              = "default-oac"
   origin_access_control_origin_type = "s3"
@@ -91,3 +46,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     cloudfront_default_certificate = true
   }
 }
+
+
+locals {
+  my_domain    = "clinica.com"
+  s3_origin_id = "frontendS3"
+}
+
